@@ -1,32 +1,32 @@
 const { User } = require('../models');
-const { signToken } = require('../utils/auth');
+const { signToken, AuthenticationError } = require('../utils/auth');
 
 const resolvers = {
   Query: {
     me: async (parent, args, context) => {
       if (context.user) {
-        const userData = await User.findById(context.user._id).select('-__v -password');
+        const userData = await User.findOne({ _id: context.user._id}).select('-__v -password');
         return userData;
       }
-      throw new AuthenticationError('Not logged in');
+      throw AuthenticationError;
     },
   },
   Mutation: {
     login: async (parent, { email, password }) => {
       const user = await User.findOne({ email });
       if (!user) {
-        throw new AuthenticationError('Incorrect credentials');
+        throw AuthenticationError;
       }
 
       const correctPw = await user.isCorrectPassword(password);
       if (!correctPw) {
-        throw new AuthenticationError('Incorrect credentials');
+        throw AuthenticationError;
       }
 
       const token = signToken(user);
       return { token, user };
     },
-    createUser: async (parent, args) => {
+    addUser: async (parent, args) => {
       const user = await User.create(args);
       const token = signToken(user);
       return { token, user };
@@ -40,9 +40,9 @@ const resolvers = {
         );
         return updatedUser;
       }
-      throw new AuthenticationError('Not logged in');
+      throw AuthenticationError;
     },
-    deleteBook: async (parent, { bookId }, context) => {
+    removeBook: async (parent, { bookId }, context) => {
       if (context.user) {
         const updatedUser = await User.findByIdAndUpdate(
           context.user._id,
@@ -51,7 +51,7 @@ const resolvers = {
         );
         return updatedUser;
       }
-      throw new AuthenticationError('Not logged in');
+      throw AuthenticationError;
     },
   },
 };
