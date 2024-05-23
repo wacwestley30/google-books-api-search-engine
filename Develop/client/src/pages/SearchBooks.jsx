@@ -42,6 +42,7 @@ const SearchBooks = () => {
 
     try {
       const { data } = await refetchSearchBooks({ query: searchInput });
+      console.log(data);
       if (data) {
         const bookData = data.searchBooks.map((book) => ({
           bookId: book.bookId,
@@ -49,6 +50,7 @@ const SearchBooks = () => {
           title: book.title,
           description: book.description,
           image: book.image || '',
+          link: book.link || '#',
         }));
 
         setSearchedBooks(bookData);
@@ -82,11 +84,14 @@ const SearchBooks = () => {
     <>
       <div className='text-light bg-dark p-5'>
         <Container>
-          <h1>Search for Books!</h1>
+          <label htmlFor='searchInput'>
+            <h1>Search for Books!</h1>
+          </label>
           <Form onSubmit={handleFormSubmit}>
             <Row>
               <Col xs={12} md={8}>
                 <Form.Control
+                  id='searchInput'
                   name='searchInput'
                   value={searchInput}
                   onChange={(e) => setSearchInput(e.target.value)}
@@ -114,7 +119,9 @@ const SearchBooks = () => {
             <Col md='4' key={book.bookId}>
               <Card border='dark'>
                 {book.image ? (
-                  <Card.Img src={book.image} alt={`The cover for ${book.title}`} variant='top' />
+                  <a href={book.link} target="_blank" rel="noopener noreferrer">
+                    <Card.Img src={book.image} alt={`The cover for ${book.title}`} variant='top' />
+                  </a>
                 ) : null}
                 <Card.Body>
                   <Card.Title>{book.title}</Card.Title>

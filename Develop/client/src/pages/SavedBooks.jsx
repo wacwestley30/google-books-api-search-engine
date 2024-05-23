@@ -41,7 +41,12 @@ const SavedBooks = () => {
           {userData.savedBooks.map((book) => (
             <Col md="4" key={book.bookId}>
               <Card border='dark'>
-                {book.image && <Card.Img src={book.image} alt={`The cover for ${book.title}`} variant='top' />}
+                {
+                  // book.image &&
+                  <a href={book.link} target="_blank" rel="noopener noreferrer">
+                    <Card.Img src={book.image} alt={`The cover for ${book.title}`} variant='top' />
+                  </a>
+                }
                 <Card.Body>
                   <Card.Title>{book.title}</Card.Title>
                   <p className='small'>Authors: {book.authors}</p>
