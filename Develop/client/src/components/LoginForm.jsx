@@ -6,10 +6,15 @@ import Auth from '../utils/auth';
 
 const LoginForm = () => {
   const [userFormData, setUserFormData] = useState({ email: '', password: '' });
-  const [validated] = useState(false);
+  const [validated, setValidated] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
 
-  const [login, { error }] = useMutation(LOGIN_USER);
+  const [login, { error }] = useMutation(LOGIN_USER, {
+    onError: (err) => {
+      console.error(err);
+      setShowAlert(true); // Show alert on error
+    },
+  });
 
   const handleInputChange = (event) => {
     const { name, value } = event.target;
@@ -18,12 +23,15 @@ const LoginForm = () => {
 
   const handleFormSubmit = async (event) => {
     event.preventDefault();
+    setValidated(false);
 
     // check if form has everything (as per react-bootstrap docs)
     const form = event.currentTarget;
     if (form.checkValidity() === false) {
       event.preventDefault();
       event.stopPropagation();
+      setValidated(true);
+      return;
     }
 
     try {
@@ -32,15 +40,15 @@ const LoginForm = () => {
       });
 
       Auth.login(data.login.token);
+      setShowAlert(false);
+      setUserFormData({
+        email: '',
+        password: '',
+      });
     } catch (err) {
       console.error(err);
       setShowAlert(true);
     }
-
-    setUserFormData({
-      email: '',
-      password: '',
-    });
   };
 
   return (
@@ -49,10 +57,10 @@ const LoginForm = () => {
         <Alert
           dismissible
           onClose={() => setShowAlert(false)}
-          show={showAlert || (error && error.message)}
+          show={showAlert}
           variant='danger'
         >
-          {error && error.message ? error.message : 'Something went wrong with your login credentials!'}
+          {error ? error.message : 'Something went wrong with your login credentials!'}
         </Alert>
         <Form.Group className='mb-3'>
           <Form.Label htmlFor='email'>Email</Form.Label>

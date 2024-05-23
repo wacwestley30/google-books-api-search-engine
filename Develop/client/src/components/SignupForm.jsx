@@ -6,10 +6,15 @@ import Auth from '../utils/auth';
 
 const SignupForm = () => {
   const [userFormData, setUserFormData] = useState({ username: '', email: '', password: '' });
-  const [validated] = useState(false);
+  const [validated, setValidated] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
 
-  const [addUser, { error }] = useMutation(ADD_USER);
+  const [addUser, { error }] = useMutation(ADD_USER, {
+    onError: (err) => {
+      console.error(err);
+      setShowAlert(true); // Show alert on error
+    },
+  });
 
   const handleInputChange = (event) => {
     const { name, value } = event.target;
@@ -18,11 +23,14 @@ const SignupForm = () => {
 
   const handleFormSubmit = async (event) => {
     event.preventDefault();
+    setValidated(false);
 
     const form = event.currentTarget;
     if (form.checkValidity() === false) {
       event.preventDefault();
       event.stopPropagation();
+      setValidated(true); // Show validation feedback if form is invalid
+      return;
     }
 
     try {
@@ -31,16 +39,16 @@ const SignupForm = () => {
       });
 
       Auth.login(data.addUser.token);
+      setShowAlert(false); // Hide alert on successful signup
+      setUserFormData({
+        username: '',
+        email: '',
+        password: '',
+      });
     } catch (err) {
       console.error(err);
       setShowAlert(true);
     }
-
-    setUserFormData({
-      username: '',
-      email: '',
-      password: '',
-    });
   };
 
   return (
@@ -49,10 +57,10 @@ const SignupForm = () => {
         <Alert
           dismissible
           onClose={() => setShowAlert(false)}
-          show={showAlert || (error && error.message)}
+          show={showAlert}
           variant='danger'
         >
-          {error && error.message ? error.message : 'Something went wrong with your signup!'}
+          {error ? error.message : 'Something went wrong with your signup!'}
         </Alert>
 
         <Form.Group className='mb-3'>

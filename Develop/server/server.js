@@ -8,11 +8,9 @@ const db = require('./config/connection');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
-// Erased Routes import, added new ApolloServer and put middleware inside startApolloServer instance of Apollo Server
 const server = new ApolloServer({
   typeDefs,
   resolvers,
-  context: authMiddleware,
 });
 
 // Create a new instance of an Apollo server with the GraphQL schema
@@ -35,6 +33,7 @@ const startApolloServer = async () => {
   }
 
   db.once('open', () => {
+    console.log('Database connection established successfully!');
     app.listen(PORT, () => {
       console.log(`API server running on port ${PORT}!`);
       console.log(`Use GraphQL at http://localhost:${PORT}/graphql`);
