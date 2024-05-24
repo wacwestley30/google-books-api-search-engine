@@ -42,7 +42,7 @@ const SearchBooks = () => {
 
     try {
       const { data } = await refetchSearchBooks({ query: searchInput });
-      console.log(data);
+      
       if (data) {
         const bookData = data.searchBooks.map((book) => ({
           bookId: book.bookId,
